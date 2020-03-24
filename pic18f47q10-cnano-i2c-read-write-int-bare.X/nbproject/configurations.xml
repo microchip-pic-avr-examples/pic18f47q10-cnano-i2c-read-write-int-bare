@@ -180,8 +180,6 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1ffff"/>
         <property key="poweroptions.powerenable" value="false"/>
-        <property key="programmerToGoFilePath"
-                  value="C:/Users/m50673/Desktop/i2c/pic18f47q10-cnano-i2c-read-write-int-bare/pic18f47q10-cnano-i2c-read-write-int-bare.X/debug/free/pic18f47q10-cnano-i2c-read-write-int-bare_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"
@@ -353,8 +351,6 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1ffff"/>
         <property key="poweroptions.powerenable" value="false"/>
-        <property key="programmerToGoFilePath"
-                  value="C:/Users/m50673/Desktop/i2c/pic18f47q10-cnano-i2c-read-write-int-bare/pic18f47q10-cnano-i2c-read-write-int-bare.X/debug/pro/pic18f47q10-cnano-i2c-read-write-int-bare_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"
