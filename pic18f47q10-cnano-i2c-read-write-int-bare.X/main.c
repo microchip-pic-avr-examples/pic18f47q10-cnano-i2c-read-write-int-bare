@@ -24,24 +24,24 @@
 #pragma config WDTE = OFF /* WDT operating mode->WDT Disabled */
 #pragma config LVP = ON   /* Low-voltage programming enabled, RE3 pin is MCLR */
 
-#define _XTAL_FREQ                  64000000UL
+#define _XTAL_FREQ                      64000000UL
 
 #include <pic18.h>
 #include <xc.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-#define PPS_CONFIG_RB1_I2C_SCL_IN   0x09
-#define PPS_CONFIG_RB2_I2C_SDA_IN   0x0A
-#define PPS_CONFIG_RB1_I2C_SCL_OUT  0x0F
-#define PPS_CONFIG_RB2_I2C_SDA_OUT  0x10
-#define BAUD_RATE_DIVIDER           0x9F
-#define I2C_SLAVE_ADDRESS           0x20
-#define MCP23008_REG_ADDR_IODIR     0x00
-#define MCP23008_REG_ADDR_GPIO      0x09
-#define I2C_RW_BIT                  0x01
-#define MCP23008_DATA               0x0F
-#define PINS_DIGITAL_OUTPUT         0x00
+#define PPS_CONFIG_RB1_I2C_SCL_IN       0x09
+#define PPS_CONFIG_RB2_I2C_SDA_IN       0x0A
+#define PPS_CONFIG_RB1_I2C_SCL_OUT      0x0F
+#define PPS_CONFIG_RB2_I2C_SDA_OUT      0x10
+#define BAUD_RATE_DIVIDER               0x9F
+#define I2C_SLAVE_ADDRESS               0x20
+#define MCP23008_REG_ADDR_IODIR         0x00
+#define MCP23008_REG_ADDR_GPIO          0x09
+#define I2C_RW_BIT                      0x01
+#define MCP23008_DATA                   0x0F
+#define PINS_DIGITAL_OUTPUT             0x00
 
 /* SYSTEM initialization functions */
 static void CLK_init(void);
