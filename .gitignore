@@ -1,3 +1,6 @@
-pic18f47q10-cnano-i2c-read-write-int-bare.X/build
-pic18f47q10-cnano-i2c-read-write-int-bare.X/debug
-pic18f47q10-cnano-i2c-read-write-int-bare.X/dist
+/*/dist/
+/*/build/
+/*/nbproject/private/
+/*/nbproject/*.properties
+/*/nbproject/*.mk
+/*/nbproject/*.bash

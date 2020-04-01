@@ -31,11 +31,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define PPS_CONFIG_RB1_I2C_SCL_IN       0x09
-#define PPS_CONFIG_RB2_I2C_SDA_IN       0x0A
-#define PPS_CONFIG_RB1_I2C_SCL_OUT      0x0F
-#define PPS_CONFIG_RB2_I2C_SDA_OUT      0x10
-#define BAUD_RATE_DIVIDER               0x9F
 #define I2C_SLAVE_ADDRESS               0x20
 #define MCP23008_REG_ADDR_IODIR         0x00
 #define MCP23008_REG_ADDR_GPIO          0x09
@@ -55,6 +50,7 @@ static uint8_t I2C1_open(void);
 static void I2C1_close(void);
 static void I2C1_startCondition(void);
 static void I2C1_stopCondition(void);
+static uint8_t I2C1_getAckstatBit(void);
 static void I2C1_sendNotAcknowledge(void);
 static void I2C1_setReceiveMode(void);
 static void I2C1_write1ByteRegister(uint8_t address, uint8_t reg, uint8_t data);
@@ -114,45 +110,49 @@ struct status {
 static void CLK_init(void)
 {
     /* Set Oscilator Source: HFINTOSC and Set Clock Divider: 1 */
-    OSCCON1 = _OSCCON1_NOSC1_MASK | _OSCCON1_NOSC2_MASK;
+    OSCCON1bits.NOSC = 0x6;
 
     /* Set Nominal Freq: 64 MHz */
-    OSCFRQ = _OSCFRQ_FRQ3_MASK;
+    OSCFRQbits.FRQ3 = 1;
 }
 
 static void PPS_init(void)
 {
     /* PPS setting for using RB1 as SCL */
-    SSP1CLKPPS = PPS_CONFIG_RB1_I2C_SCL_IN;
-    RB1PPS = PPS_CONFIG_RB1_I2C_SCL_OUT;
+    SSP1CLKPPS = 0x09;
+    RB1PPS = 0x0F;
 
     /* PPS setting for using RB2 as SDA */
-    SSP1DATPPS = PPS_CONFIG_RB2_I2C_SDA_IN;
-    RB2PPS = PPS_CONFIG_RB2_I2C_SDA_OUT;
+    SSP1DATPPS = 0x0A;
+    RB2PPS = 0x10;
 }
 
 static void PORT_init(void)
 {
     /* Set pins RB1 and RB2 as Digital */
-    ANSELB &= ~(_ANSELB_ANSELB1_MASK | _ANSELB_ANSELB2_MASK);
+    ANSELBbits.ANSELB1 = 0;
+    ANSELBbits.ANSELB2 = 0;
     
     /* Set pull-up resistorsfor RB1 and RB2 */
-    WPUB |= _WPUB_WPUB1_MASK | _WPUB_WPUB2_MASK;
+    WPUBbits.WPUB1 = 1;
+    WPUBbits.WPUB2 = 1;
 }
 
 static void I2C1_init(void)
 {
     /* I2C Master Mode: Clock = F_OSC / (4 * (SSP1ADD + 1)) */
-    SSP1CON1 |= _SSP1CON1_SSPM3_MASK;
+    SSP1CON1bits.SSPM3 = 1;
     
-    /* Set the boud rate devider */
-    SSP1ADD  = BAUD_RATE_DIVIDER;
+    /* Set the boud rate devider to obtain the I2C clock at 100000 Hz*/
+    SSP1ADD  = 0x9F;
 }
 
 static void INTERRUPT_init(void)
 {
-    INTCON |= _INTCON_GIE_MASK      /* Enable the Global Interrupts */
-            | _INTCON_PEIE_MASK;    /* Enable the Peripheral Interrupts */
+    /* Enable the Global Interrupts */
+    INTCONbits.GIE = 1;
+    /* Enable the Peripheral Interrupts */
+    INTCONbits.PEIE = 1;
 }
 
 /******************************** I2C Driver **********************************/
@@ -166,13 +166,13 @@ static uint8_t I2C1_open(void)
     }
     
     /* Clear IRQ */
-    PIR3 &= ~_PIR3_SSP1IF_MASK;
+    PIR3bits.SSP1IF = 0;
 
     /* Enable SSP1 Interrupts */
-    PIE3 |= _PIE3_SSP1IE_MASK;
+    PIE3bits.SSP1IE = 1;
     
     /* I2C Master Open */
-    SSP1CON1 |= _SSP1CON1_SSPEN_MASK;
+    SSP1CON1bits.SSPEN = 1;
 
     /* Return 1 if successfully opened I2C */
     return 1;
@@ -181,35 +181,41 @@ static uint8_t I2C1_open(void)
 static void I2C1_close(void)
 {
     /* Disable I2C1 */
-    SSP1CON1 &= ~_SSP1CON1_SSPEN_MASK;
+    SSP1CON1bits.SSPEN = 0;
 
     /* Disable SSP1 Interrupts */
-    PIE3 &= ~_PIE3_SSP1IE_MASK;
+    PIE3bits.SSP1IE = 0;
 }
 
 static void I2C1_startCondition(void)
 {
-    /* I2C Master Start */
-    SSP1CON2 |= _SSP1CON2_SEN_MASK;
+    /* START Condition*/
+    SSP1CON2bits.SEN = 1;
 }
 
 static void I2C1_stopCondition(void)
 {
     /* STOP Condition */
-    SSP1CON2 |= _SSP1CON2_PEN_MASK;
+    SSP1CON2bits.PEN = 1;
+}
+
+static uint8_t I2C1_getAckstatBit(void)
+{
+    /* Return ACKSTAT bit */
+    return SSP1CON2bits.ACKSTAT;
 }
 
 static void I2C1_sendNotAcknowledge(void)
 {
     /* Send NACK bit to slave */
-    SSP1CON2 |= _SSP1CON2_ACKDT_MASK;
-    SSP1CON2 |= _SSP1CON2_ACKEN_MASK;
+    SSP1CON2bits.ACKDT = 1;
+    SSP1CON2bits.ACKEN = 1;
 }
 
 static void I2C1_setReceiveMode(void)
 {
     /* Start receiving mode */
-    SSP1CON2 |= _SSP1CON2_RCEN_MASK;
+    SSP1CON2bits.RCEN = 1;
 }
 
 static void I2C1_write1ByteRegister(uint8_t address, uint8_t reg, uint8_t data)
@@ -263,7 +269,7 @@ static void I2C_stateWriteStartComplete(void)
 static void I2C_stateWriteAddressSent(void)
 {
     /* Check the ACK bit and exit the function if its not acknowledge bit */
-    if ((SSP1CON2 & _SSP1CON2_ACKSTAT_MASK))
+    if (I2C1_getAckstatBit())
     {
         I2C1_status.state = I2C_IDLE;
         return ;
@@ -284,7 +290,7 @@ static void I2C_stateWriteAddressSent(void)
 static void I2C_stateWriteRegisterSent(void)
 {
     /* Check the ACK bit and exit the function if its not acknowledge bit */
-    if ((SSP1CON2 & _SSP1CON2_ACKSTAT_MASK))
+    if (I2C1_getAckstatBit())
     {
         I2C1_status.state = I2C_IDLE;
         return ;
@@ -298,7 +304,7 @@ static void I2C_stateWriteRegisterSent(void)
 static void I2C_stateWriteDataSent(void)
 {
     /* Check the ACK bit and exit the function if its not acknowledge bit */
-    if ((SSP1CON2 & _SSP1CON2_ACKSTAT_MASK))
+    if (I2C1_getAckstatBit())
     {
         I2C1_status.state = I2C_IDLE;
         return ;
@@ -328,7 +334,7 @@ static void I2C_stateReadStartComplete(void)
 static void I2C_stateReadAddressSent(void)
 {
     /* Check the ACK bit and exit the function if its not acknowledge bit */
-    if ((SSP1CON2 & _SSP1CON2_ACKSTAT_MASK))
+    if (I2C1_getAckstatBit())
     {
         I2C1_status.state = I2C_IDLE;
         return ;
@@ -366,14 +372,14 @@ static void MSSP1_interruptHandler(void)
     I2C_stateFuncs[I2C1_status.state]();
     
     /* Clear Interrupt Flag */
-    PIR3 &= ~_PIR3_SSP1IF_MASK;
+    PIR3bits.SSP1IF = 0;
 }
 
 void __interrupt() INTERRUPT_InterruptManager (void)
 {
-    if(INTCON & _INTCON_PEIE_MASK)
+    if(INTCONbits.PEIE == 1)
     {
-        if((PIE3 & _PIE3_SSP1IE_MASK) && (PIR3 & _PIR3_SSP1IF_MASK))
+        if(PIE3bits.SSP1IE == 1 && PIR3bits.SSP1IF == 1)
         {
             MSSP1_interruptHandler();
         }
