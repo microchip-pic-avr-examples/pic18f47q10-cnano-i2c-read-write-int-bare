@@ -39,11 +39,11 @@
 #define PINS_DIGITAL_OUTPUT             0x00
 
 /* SYSTEM initialization functions */
-static void CLK_init(void);
-static void PPS_init(void);
-static void PORT_init(void);
-static void I2C1_init(void);
-static void INTERRUPT_init(void);
+static void CLK_Initialize(void);
+static void PPS_Initialize(void);
+static void PORT_Initialize(void);
+static void I2C1_Initialize(void);
+static void INTERRUPT_Initialize(void);
 
 /* Driver functions */
 static uint8_t I2C1_open(void);
@@ -107,7 +107,7 @@ struct status {
 
 /*************************** SYSTEM INITIALIZATION ****************************/
 
-static void CLK_init(void)
+static void CLK_Initialize(void)
 {
     /* Set Oscilator Source: HFINTOSC and Set Clock Divider: 1 */
     OSCCON1bits.NOSC = 0x6;
@@ -116,7 +116,7 @@ static void CLK_init(void)
     OSCFRQbits.FRQ3 = 1;
 }
 
-static void PPS_init(void)
+static void PPS_Initialize(void)
 {
     /* PPS setting for using RB1 as SCL */
     SSP1CLKPPS = 0x09;
@@ -127,7 +127,7 @@ static void PPS_init(void)
     RB2PPS = 0x10;
 }
 
-static void PORT_init(void)
+static void PORT_Initialize(void)
 {
     /* Set pins RB1 and RB2 as Digital */
     ANSELBbits.ANSELB1 = 0;
@@ -138,7 +138,7 @@ static void PORT_init(void)
     WPUBbits.WPUB2 = 1;
 }
 
-static void I2C1_init(void)
+static void I2C1_Initialize(void)
 {
     /* I2C Master Mode: Clock = F_OSC / (4 * (SSP1ADD + 1)) */
     SSP1CON1bits.SSPM3 = 1;
@@ -147,7 +147,7 @@ static void I2C1_init(void)
     SSP1ADD  = 0x9F;
 }
 
-static void INTERRUPT_init(void)
+static void INTERRUPT_Initialize(void)
 {
     /* Enable the Global Interrupts */
     INTCONbits.GIE = 1;
@@ -388,11 +388,11 @@ void __interrupt() INTERRUPT_InterruptManager (void)
 
 void main(void)
 {
-    CLK_init();
-    PPS_init();
-    PORT_init();
-    I2C1_init();
-    INTERRUPT_init();
+    CLK_Initialize();
+    PPS_Initialize();
+    PORT_Initialize();
+    I2C1_Initialize();
+    INTERRUPT_Initialize();
     
     /* Set the initial state to IDLE */
     I2C1_status.state = I2C_IDLE;
