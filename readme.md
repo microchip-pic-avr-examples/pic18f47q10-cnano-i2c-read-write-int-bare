@@ -37,6 +37,7 @@ The following configurations must be made for this project:
 	- HF Internal Clock: 64 MHz
 	- Clock Divider: 1
 - MSSP1
+    - Interrupt Driven: enabled
 	- Serial Protocol: I2C
     - Mode: Master
     - I2C Clock Frequency: 100000
